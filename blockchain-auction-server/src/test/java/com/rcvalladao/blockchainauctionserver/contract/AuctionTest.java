@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class AuctionTest {
 
     @Test
-    void givenDescriptor_whenDeploy_thenReturnDescriptor(Web3j web3j, TransactionManager transactionManager, ContractGasProvider gasProvider) throws Exception {
+    void givenRequirements_whenGetRequirements_thenReturnRequirements(Web3j web3j, TransactionManager transactionManager, ContractGasProvider gasProvider) throws Exception {
         Auction.Requirements expectedRequirements = new Auction.Requirements("Name", "Type", BigInteger.TWO);
         Auction auction = Auction.deploy(web3j, transactionManager, gasProvider, expectedRequirements, BigInteger.ONE).send();
         Auction.Requirements actualRequirements = auction.getRequirements().send();
