@@ -32,8 +32,7 @@ class AuctionTest {
     @Test
     void givenAuctionEnded_whenFinishAuction_thenReturnSuccess(Web3j web3j, TransactionManager transactionManager, ContractGasProvider gasProvider) throws Exception {
         Auction.Requirements requirements = new Auction.Requirements("Name", "Type", BigInteger.TWO);
-        Auction auction = Auction.deploy(web3j, transactionManager, gasProvider, requirements, BigInteger.valueOf(1000)).send();
-        Thread.sleep(1000); // TODO: remove this Thread.sleep and use a lib
+        Auction auction = Auction.deploy(web3j, transactionManager, gasProvider, requirements, BigInteger.ZERO).send();
         auction.finishAuction().send();
     }
 
