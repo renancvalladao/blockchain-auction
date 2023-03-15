@@ -23,6 +23,11 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.web3j</groupId>
+			<artifactId>core</artifactId>
+			<version>4.9.7</version>
+		</dependency>
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
