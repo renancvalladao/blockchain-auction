@@ -59,4 +59,28 @@ class AuctionTest {
         assertThrows(TransactionException.class, () -> notOwnerAuction.finishAuction().send());
     }
 
+    @Test
+    void givenValidBid_whenPlaceBid_thenReturnSuccess(Web3j web3j, TransactionManager transactionManager, ContractGasProvider gasProvider) throws Exception {
+        Auction.Requirements requirements = new Auction.Requirements("Name", "Type", BigInteger.TWO);
+        Auction auction = Auction.deploy(web3j, transactionManager, gasProvider, requirements, BigInteger.TEN).send();
+        auction.placeBid(BigInteger.TEN).send();
+    }
+
+    @Test
+    void givenAuctionEnded_whenPlaceBid_thenReturnError(Web3j web3j, TransactionManager transactionManager, ContractGasProvider gasProvider) throws Exception {
+        Auction.Requirements requirements = new Auction.Requirements("Name", "Type", BigInteger.TWO);
+        Auction auction = Auction.deploy(web3j, transactionManager, gasProvider, requirements, BigInteger.ZERO).send();
+        auction.finishAuction().send();
+
+        assertThrows(TransactionException.class, () -> auction.placeBid(BigInteger.TEN).send());
+    }
+
+    @Test
+    void givenBigIsEqualToZero_whenPlaceBid_thenReturnError(Web3j web3j, TransactionManager transactionManager, ContractGasProvider gasProvider) throws Exception {
+        Auction.Requirements requirements = new Auction.Requirements("Name", "Type", BigInteger.TWO);
+        Auction auction = Auction.deploy(web3j, transactionManager, gasProvider, requirements, BigInteger.TEN).send();
+
+        assertThrows(TransactionException.class, () -> auction.placeBid(BigInteger.ZERO).send());
+    }
+
 }
