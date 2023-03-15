@@ -23,6 +23,17 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.rcvalladao</groupId>
+			<artifactId>blockchain-auction-server</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.web3j</groupId>
+					<artifactId>web3j-unit</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
 			<groupId>org.web3j</groupId>
 			<artifactId>core</artifactId>
 			<version>4.9.7</version>
