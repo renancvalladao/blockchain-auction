@@ -10,7 +10,6 @@ import org.web3j.tx.TransactionManager;
 import org.web3j.tx.gas.DefaultGasProvider;
 
 import java.math.BigInteger;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -22,7 +21,7 @@ public class AuctionService {
     private static final int BIDDING_TIME = 10;
     private final Web3j web3j;
     private final TransactionManager transactionManager;
-    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService executorService;
 
     public void createAuction(RequirementsRequest requirementsRequest) throws Exception {
         Auction.Requirements requirements = this.requirementsRequestToAuctionRequirements(requirementsRequest);
