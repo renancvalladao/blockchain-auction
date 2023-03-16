@@ -25,9 +25,7 @@ class AuctionTest {
         Auction auction = Auction.deploy(web3j, transactionManager, gasProvider, expectedRequirements, BigInteger.ONE).send();
         Auction.Requirements actualRequirements = auction.getRequirements().send();
 
-        assertEquals(expectedRequirements.vnfName, actualRequirements.vnfName);
-        assertEquals(expectedRequirements.vnfType, actualRequirements.vnfType);
-        assertEquals(expectedRequirements.numCpus, actualRequirements.numCpus);
+        assertEquals(expectedRequirements, actualRequirements);
     }
 
     @Test
