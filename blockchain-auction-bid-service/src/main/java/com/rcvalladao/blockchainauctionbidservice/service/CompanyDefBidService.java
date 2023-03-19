@@ -18,10 +18,12 @@ public class CompanyDefBidService {
 
     private final Web3j web3j;
     private final TransactionManager companyDefTransactionManager;
+    private final CompanyDefCostService companyDefCostService;
 
     public void placeBid(ContractInfo contractInfo) throws Exception {
         Auction auction = Auction.load(contractInfo.getAddress(), this.web3j, this.companyDefTransactionManager, new DefaultGasProvider());
-        long cost = 200; // TODO: calculate service cost dynamically
+        Auction.Requirements requirements = auction.getRequirements().send();
+        int cost = this.companyDefCostService.calculateCost(requirements.numCpus.intValue());
         auction.placeBid(BigInteger.valueOf(cost)).send();
         log.info("Bid placed");
     }
