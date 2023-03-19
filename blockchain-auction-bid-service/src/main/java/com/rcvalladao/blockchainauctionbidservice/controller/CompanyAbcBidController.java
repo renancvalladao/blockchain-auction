@@ -20,7 +20,7 @@ public class CompanyAbcBidController {
     private final CompanyAbcBidService companyAbcBidService;
 
     @PostMapping("/bids")
-    public ResponseEntity<Object> placeBid(@RequestBody ContractInfo contractInfo) {
+    public ResponseEntity<Object> placeBid(@RequestBody ContractInfo contractInfo) throws Exception {
         log.info("New bid request for smart contract on " + contractInfo.getAddress());
         this.companyAbcBidService.placeBid(contractInfo);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
