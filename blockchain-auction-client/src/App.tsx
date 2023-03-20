@@ -1,34 +1,47 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import {
+  Button,
+  Card,
+  CardBody,
+  Heading,
+  Stack,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  useColorModeValue
+} from '@chakra-ui/react'
+import AuctionForm from './components/AuctionForm'
+import ProviderList from './components/ProviderList'
 
-function App() {
-  const [count, setCount] = useState(0)
-
+const App = () => {
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
+    <Stack spacing={16} alignItems={'center'} mt={16}>
+      <Heading color={useColorModeValue('gray.700', 'gray.200')}>
+        Blockchain Auction
+      </Heading>
+      <Card minW={'lg'}>
+        <CardBody>
+          <Tabs isFitted>
+            <TabList>
+              <Tab fontWeight={'medium'}>Auction</Tab>
+              <Tab fontWeight={'medium'}>Providers</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel>
+                <AuctionForm />
+              </TabPanel>
+              <TabPanel>
+                <Stack spacing={4}>
+                  <ProviderList />
+                  <Button colorScheme={'blue'}>Add new provider</Button>
+                </Stack>
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        </CardBody>
+      </Card>
+    </Stack>
   )
 }
 
