@@ -11,10 +11,23 @@ import {
   Tabs,
   useColorModeValue
 } from '@chakra-ui/react'
+import { useEffect, useState } from 'react'
 import AuctionForm from './components/AuctionForm'
 import ProviderList from './components/ProviderList'
 
 const App = () => {
+  const [providers, setProviders] = useState<ProviderInfo[]>([])
+
+  useEffect(() => {
+    const fetchProviders = async () => {
+      const response = await fetch('http://localhost:8080/providers')
+      const data = await response.json()
+      setProviders(data)
+    }
+
+    fetchProviders()
+  }, [])
+
   const createAuctionHandler = (requirementsRequest: RequirementsRequest) => {
     console.log(requirementsRequest)
   }
@@ -37,7 +50,7 @@ const App = () => {
               </TabPanel>
               <TabPanel>
                 <Stack spacing={4}>
-                  <ProviderList />
+                  <ProviderList providers={providers} />
                   <Button colorScheme={'blue'}>Add new provider</Button>
                 </Stack>
               </TabPanel>

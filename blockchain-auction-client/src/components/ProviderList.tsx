@@ -8,7 +8,11 @@ import {
   Tr
 } from '@chakra-ui/react'
 
-const ProviderList = () => {
+type ProviderListProps = {
+  providers: ProviderInfo[]
+}
+
+const ProviderList = ({ providers }: ProviderListProps) => {
   return (
     <TableContainer>
       <Table variant={'striped'}>
@@ -19,14 +23,12 @@ const ProviderList = () => {
           </Tr>
         </Thead>
         <Tbody>
-          <Tr>
-            <Td>Company ABC</Td>
-            <Td>http://localhost:8081/company-abc/bids</Td>
-          </Tr>
-          <Tr>
-            <Td>Company DEF</Td>
-            <Td>http://localhost:8081/company-def/bids</Td>
-          </Tr>
+          {providers.map((provider) => (
+            <Tr key={provider.name}>
+              <Td>{provider.name}</Td>
+              <Td>{provider.bidEndpoint}</Td>
+            </Tr>
+          ))}
         </Tbody>
       </Table>
     </TableContainer>

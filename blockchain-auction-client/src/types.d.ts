@@ -3,3 +3,8 @@ type RequirementsRequest = {
   vnfType: string
   numCpus: number
 }
+
+type ProviderInfo = {
+  name: string
+  bidEndpoint: string
+}
