@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import AuctionForm from './components/AuctionForm'
-import ProviderList from './components/ProviderList'
+import ProvidersList from './components/ProvidersList'
 
 const App = () => {
   const [providers, setProviders] = useState<ProviderInfo[]>([])
@@ -50,7 +50,7 @@ const App = () => {
               </TabPanel>
               <TabPanel>
                 <Stack spacing={4}>
-                  <ProviderList providers={providers} />
+                  <ProvidersList providers={providers} />
                   <Button colorScheme={'blue'}>Add new provider</Button>
                 </Stack>
               </TabPanel>

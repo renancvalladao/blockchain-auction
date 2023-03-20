@@ -8,11 +8,11 @@ import {
   Tr
 } from '@chakra-ui/react'
 
-type ProviderListProps = {
+type ProvidersListProps = {
   providers: ProviderInfo[]
 }
 
-const ProviderList = ({ providers }: ProviderListProps) => {
+const ProvidersList = ({ providers }: ProvidersListProps) => {
   return (
     <TableContainer>
       <Table variant={'striped'}>
@@ -35,4 +35,4 @@ const ProviderList = ({ providers }: ProviderListProps) => {
   )
 }
 
-export default ProviderList
+export default ProvidersList
