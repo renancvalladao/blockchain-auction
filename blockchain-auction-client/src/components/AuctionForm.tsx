@@ -10,22 +10,41 @@ import {
   NumberInputStepper,
   Stack
 } from '@chakra-ui/react'
+import { FormEvent, useState } from 'react'
 
-const AuctionForm = () => {
+type AuctionFormProps = {
+  onCreateAuction: (requirementsRequest: RequirementsRequest) => void
+}
+
+const AuctionForm = ({ onCreateAuction }: AuctionFormProps) => {
+  const [vnfName, setVnfName] = useState('')
+  const [vnfType, setVnfType] = useState('')
+  const [numCpus, setNumCpus] = useState(0)
+
+  const submitHandler = (e: FormEvent) => {
+    e.preventDefault()
+    onCreateAuction({ vnfName, vnfType, numCpus })
+  }
+
   return (
-    <form>
+    <form onSubmit={submitHandler}>
       <Stack spacing={4}>
         <FormControl>
           <FormLabel>Identifier</FormLabel>
-          <Input />
+          <Input value={vnfName} onChange={(e) => setVnfName(e.target.value)} />
         </FormControl>
         <FormControl>
           <FormLabel>Type</FormLabel>
-          <Input />
+          <Input value={vnfType} onChange={(e) => setVnfType(e.target.value)} />
         </FormControl>
         <FormControl>
           <FormLabel>Number of CPUs</FormLabel>
-          <NumberInput defaultValue={0} max={20} min={0}>
+          <NumberInput
+            value={numCpus}
+            max={20}
+            min={0}
+            onChange={(value) => setNumCpus(+value)}
+          >
             <NumberInputField />
             <NumberInputStepper>
               <NumberIncrementStepper />

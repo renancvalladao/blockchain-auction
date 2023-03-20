@@ -15,6 +15,10 @@ import AuctionForm from './components/AuctionForm'
 import ProviderList from './components/ProviderList'
 
 const App = () => {
+  const createAuctionHandler = (requirementsRequest: RequirementsRequest) => {
+    console.log(requirementsRequest)
+  }
+
   return (
     <Stack spacing={16} alignItems={'center'} mt={16}>
       <Heading color={useColorModeValue('gray.700', 'gray.200')}>
@@ -29,7 +33,7 @@ const App = () => {
             </TabList>
             <TabPanels>
               <TabPanel>
-                <AuctionForm />
+                <AuctionForm onCreateAuction={createAuctionHandler} />
               </TabPanel>
               <TabPanel>
                 <Stack spacing={4}>
