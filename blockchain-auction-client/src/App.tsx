@@ -1,5 +1,4 @@
 import {
-  Button,
   Card,
   CardBody,
   Heading,
@@ -13,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import AuctionForm from './components/AuctionForm'
+import ProviderForm from './components/ProviderForm'
 import ProvidersList from './components/ProvidersList'
 
 const App = () => {
@@ -27,6 +27,19 @@ const App = () => {
 
     fetchProviders()
   }, [])
+
+  const addProviderHandler = async (providerInfo: ProviderInfo) => {
+    const response = await fetch('http://localhost:8080/providers', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(providerInfo)
+    })
+    if (response.ok) {
+      setProviders((prevProviders) => [...prevProviders, providerInfo])
+    }
+  }
 
   const createAuctionHandler = (requirementsRequest: RequirementsRequest) => {
     console.log(requirementsRequest)
@@ -51,7 +64,7 @@ const App = () => {
               <TabPanel>
                 <Stack spacing={4}>
                   <ProvidersList providers={providers} />
-                  <Button colorScheme={'blue'}>Add new provider</Button>
+                  <ProviderForm onAddProvider={addProviderHandler} />
                 </Stack>
               </TabPanel>
             </TabPanels>
