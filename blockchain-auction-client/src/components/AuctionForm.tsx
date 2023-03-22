@@ -13,10 +13,11 @@ import {
 import { FormEvent, useState } from 'react'
 
 type AuctionFormProps = {
+  isLoading: boolean
   onCreateAuction: (requirementsRequest: RequirementsRequest) => void
 }
 
-const AuctionForm = ({ onCreateAuction }: AuctionFormProps) => {
+const AuctionForm = ({ onCreateAuction, isLoading }: AuctionFormProps) => {
   const [vnfName, setVnfName] = useState('')
   const [vnfType, setVnfType] = useState('')
   const [numCpus, setNumCpus] = useState(0)
@@ -52,7 +53,12 @@ const AuctionForm = ({ onCreateAuction }: AuctionFormProps) => {
             </NumberInputStepper>
           </NumberInput>
         </FormControl>
-        <Button type="submit" colorScheme={'blue'}>
+        <Button
+          type="submit"
+          colorScheme={'blue'}
+          isLoading={isLoading}
+          loadingText={'Submitting'}
+        >
           Submit
         </Button>
       </Stack>

@@ -12,10 +12,22 @@ import {
 } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import AuctionForm from './components/AuctionForm'
+import AuctionProgress from './components/AuctionProgress'
+import AuctionResult from './components/AuctionResult'
 import ProviderForm from './components/ProviderForm'
 import ProvidersList from './components/ProvidersList'
 
+enum AuctionState {
+  NOT_STARTED,
+  STARTED,
+  FINISHED
+}
+
 const App = () => {
+  const [auctionState, setAuctionState] = useState<AuctionState>(
+    AuctionState.NOT_STARTED
+  )
+  const [isLoading, setIsLoading] = useState(false)
   const [providers, setProviders] = useState<ProviderInfo[]>([])
 
   useEffect(() => {
@@ -41,8 +53,24 @@ const App = () => {
     }
   }
 
-  const createAuctionHandler = (requirementsRequest: RequirementsRequest) => {
-    console.log(requirementsRequest)
+  const createAuctionHandler = async (
+    requirementsRequest: RequirementsRequest
+  ) => {
+    setIsLoading(true)
+    await fetch('http://localhost:8080/auctions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(requirementsRequest)
+    })
+    setIsLoading(false)
+    setAuctionState(AuctionState.STARTED)
+    setTimeout(() => setAuctionState(AuctionState.FINISHED), 20000)
+  }
+
+  const newAuctionHandler = () => {
+    setAuctionState(AuctionState.NOT_STARTED)
   }
 
   return (
@@ -59,7 +87,16 @@ const App = () => {
             </TabList>
             <TabPanels>
               <TabPanel>
-                <AuctionForm onCreateAuction={createAuctionHandler} />
+                {auctionState === AuctionState.NOT_STARTED && (
+                  <AuctionForm
+                    isLoading={isLoading}
+                    onCreateAuction={createAuctionHandler}
+                  />
+                )}
+                {auctionState === AuctionState.STARTED && <AuctionProgress />}
+                {auctionState === AuctionState.FINISHED && (
+                  <AuctionResult onNewAuction={newAuctionHandler} />
+                )}
               </TabPanel>
               <TabPanel>
                 <Stack spacing={4}>
