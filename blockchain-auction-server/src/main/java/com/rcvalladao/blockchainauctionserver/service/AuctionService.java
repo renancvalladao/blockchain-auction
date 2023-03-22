@@ -30,7 +30,7 @@ public class AuctionService {
     private final ExecutorService executorService;
     private final ProviderService providerService;
 
-    public void createAuction(RequirementsRequest requirementsRequest) throws Exception {
+    public ContractInfo createAuction(RequirementsRequest requirementsRequest) throws Exception {
         Auction.Requirements requirements = this.requirementsRequestToAuctionRequirements(requirementsRequest);
         Auction auction = Auction.deploy(this.web3j, this.transactionManager, new DefaultGasProvider(), requirements,
                 BigInteger.valueOf(BIDDING_TIME)).send();
@@ -42,15 +42,22 @@ public class AuctionService {
                 log.error("Failed to finish auction", e);
             }
         }, BIDDING_TIME, TimeUnit.SECONDS);
+        ContractInfo contractInfo = ContractInfo.builder()
+                .address(auction.getContractAddress())
+                .ownerAddress(this.transactionManager.getFromAddress())
+                .build();
         List<ProviderInfo> providersAddresses = this.providerService.getProvidersInfo();
         providersAddresses.forEach(providerInfo -> this.executorService.submit(() -> {
             RestTemplate restTemplate = new RestTemplate();
-            ContractInfo contractInfo = ContractInfo.builder()
-                    .address(auction.getContractAddress())
-                    .ownerAddress(this.transactionManager.getFromAddress())
-                    .build();
             restTemplate.postForEntity(providerInfo.getBidEndpoint(), contractInfo, Object.class);
         }));
+
+        return contractInfo;
+    }
+
+    public String getWinner(String contractAddress) throws Exception {
+        Auction auction = Auction.load(contractAddress, this.web3j, this.transactionManager, new DefaultGasProvider());
+        return auction.getWinner().send();
     }
 
     private Auction.Requirements requirementsRequestToAuctionRequirements(RequirementsRequest requirementsRequest) {

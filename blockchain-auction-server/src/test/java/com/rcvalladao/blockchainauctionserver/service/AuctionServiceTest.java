@@ -1,6 +1,7 @@
 package com.rcvalladao.blockchainauctionserver.service;
 
 import com.rcvalladao.blockchainauctionserver.contract.Auction;
+import com.rcvalladao.blockchainauctionserver.dto.ContractInfo;
 import com.rcvalladao.blockchainauctionserver.dto.ProviderInfo;
 import com.rcvalladao.blockchainauctionserver.dto.RequirementsRequest;
 import org.junit.jupiter.api.Test;
@@ -54,22 +55,29 @@ class AuctionServiceTest {
                 .build();
         Auction.Requirements expectedRequirements = new Auction.Requirements(requirementsRequest.getVnfName(),
                 requirementsRequest.getVnfType(), BigInteger.valueOf(requirementsRequest.getNumCpus()));
+        ContractInfo expectedContractInfo = ContractInfo.builder()
+                .address("address")
+                .ownerAddress(this.transactionManager.getFromAddress())
+                .build();
         ProviderInfo abc = ProviderInfo.builder().bidEndpoint("abc").build();
         ProviderInfo def = ProviderInfo.builder().bidEndpoint("def").build();
         List<ProviderInfo> providerInfoList = Arrays.asList(abc, def);
         when(this.remoteCall.send()).thenReturn(this.auction);
+        when(this.auction.getContractAddress()).thenReturn("address");
         when(this.providerService.getProvidersInfo()).thenReturn(providerInfoList);
 
+        ContractInfo actualContractInfo;
         try (MockedStatic<Auction> auctionStatic = Mockito.mockStatic(Auction.class)) {
             auctionStatic.when(() -> Auction.deploy(any(Web3j.class), any(TransactionManager.class), any(),
                             this.requirementsArgumentCaptor.capture(), any()))
                     .thenReturn(this.remoteCall);
-            auctionService.createAuction(requirementsRequest);
+            actualContractInfo = auctionService.createAuction(requirementsRequest);
         }
 
         verify(this.scheduledExecutorService).schedule(any(Runnable.class), eq(20L), eq(TimeUnit.SECONDS));
         verify(this.executorService, times(2)).submit(any(Runnable.class));
         assertEquals(expectedRequirements, this.requirementsArgumentCaptor.getValue());
+        assertEquals(expectedContractInfo, actualContractInfo);
     }
 
 }
