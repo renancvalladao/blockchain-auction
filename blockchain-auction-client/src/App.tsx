@@ -27,6 +27,7 @@ const App = () => {
   const [auctionState, setAuctionState] = useState<AuctionState>(
     AuctionState.NOT_STARTED
   )
+  const [auctionWinner, setAuctionWinner] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
   const [providers, setProviders] = useState<ProviderInfo[]>([])
 
@@ -57,16 +58,25 @@ const App = () => {
     requirementsRequest: RequirementsRequest
   ) => {
     setIsLoading(true)
-    await fetch('http://localhost:8080/auctions', {
+    const response = await fetch('http://localhost:8080/auctions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(requirementsRequest)
     })
+    const data: ContractInfo = await response.json()
+    const auctionAddress = data.address
     setIsLoading(false)
     setAuctionState(AuctionState.STARTED)
-    setTimeout(() => setAuctionState(AuctionState.FINISHED), 20000)
+    setTimeout(async () => {
+      const response = await fetch(
+        `http://localhost:8080/auctions/${auctionAddress}/winner`
+      )
+      const winner = await response.text()
+      setAuctionState(AuctionState.FINISHED)
+      setAuctionWinner(winner)
+    }, 40000)
   }
 
   const newAuctionHandler = () => {
@@ -95,7 +105,10 @@ const App = () => {
                 )}
                 {auctionState === AuctionState.STARTED && <AuctionProgress />}
                 {auctionState === AuctionState.FINISHED && (
-                  <AuctionResult onNewAuction={newAuctionHandler} />
+                  <AuctionResult
+                    winner={auctionWinner}
+                    onNewAuction={newAuctionHandler}
+                  />
                 )}
               </TabPanel>
               <TabPanel>

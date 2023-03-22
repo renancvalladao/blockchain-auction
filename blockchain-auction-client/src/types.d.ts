@@ -8,3 +8,8 @@ type ProviderInfo = {
   name: string
   bidEndpoint: string
 }
+
+type ContractInfo = {
+  address: string
+  ownerAddress: string
+}
