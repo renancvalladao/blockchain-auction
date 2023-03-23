@@ -2,6 +2,7 @@ package com.rcvalladao.blockchainauctionserver.controller;
 
 import com.rcvalladao.blockchainauctionserver.dto.ContractInfo;
 import com.rcvalladao.blockchainauctionserver.dto.RequirementsRequest;
+import com.rcvalladao.blockchainauctionserver.dto.WinnerInfo;
 import com.rcvalladao.blockchainauctionserver.service.AuctionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,8 +25,8 @@ public class AuctionController {
     }
 
     @GetMapping("/auctions/{contractAddress}/winner")
-    public String getWinner(@PathVariable("contractAddress") String contractAddress) throws Exception {
-        return this.auctionService.getWinner(contractAddress); // TODO: also return the cost
+    public WinnerInfo getWinnerInfo(@PathVariable("contractAddress") String contractAddress) throws Exception {
+        return this.auctionService.getWinner(contractAddress);
     }
 
 }

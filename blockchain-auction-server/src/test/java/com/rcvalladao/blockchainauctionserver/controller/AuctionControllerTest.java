@@ -3,6 +3,7 @@ package com.rcvalladao.blockchainauctionserver.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rcvalladao.blockchainauctionserver.dto.ContractInfo;
 import com.rcvalladao.blockchainauctionserver.dto.RequirementsRequest;
+import com.rcvalladao.blockchainauctionserver.dto.WinnerInfo;
 import com.rcvalladao.blockchainauctionserver.service.AuctionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,9 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AuctionController.class)
 class AuctionControllerTest {
@@ -48,6 +49,20 @@ class AuctionControllerTest {
                 .andExpect(jsonPath("$.ownerAddress", is(contractInfo.getOwnerAddress())));
 
         verify(this.auctionService).createAuction(requirementsRequest);
+    }
+
+    @Test
+    void givenWinnerInfo_whenGetWinnerInfo_ReturnExpectedWinnerInfo() throws Exception {
+        WinnerInfo expectedWinnerInfo = WinnerInfo.builder().address("address").cost(10).build();
+
+        when(this.auctionService.getWinner(any())).thenReturn(expectedWinnerInfo);
+
+        this.mockMvc.perform(get("/auctions/" + expectedWinnerInfo.getAddress() + "/winner")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.address", is(expectedWinnerInfo.getAddress())))
+                .andExpect(jsonPath("$.cost", is(expectedWinnerInfo.getCost())));
     }
 
 }

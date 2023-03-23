@@ -85,12 +85,13 @@ class AuctionTest {
     @Test
     void givenOneBid_whenGetWinner_thenReturnWinner(Web3j web3j, TransactionManager transactionManager, ContractGasProvider gasProvider) throws Exception {
         Auction.Requirements requirements = new Auction.Requirements("Name", "Type", BigInteger.TWO);
+        Auction.WinnerInfo expectedWinnerInfo = new Auction.WinnerInfo(transactionManager.getFromAddress(), BigInteger.TEN);
         Auction auction = Auction.deploy(web3j, transactionManager, gasProvider, requirements, BigInteger.ZERO).send();
         auction.placeBid(BigInteger.TEN).send();
         auction.finishAuction().send();
-        String winnerAddress = auction.getWinner().send();
+        Auction.WinnerInfo winnerInfo = auction.getWinner().send();
 
-        assertEquals(transactionManager.getFromAddress(), winnerAddress);
+        assertEquals(expectedWinnerInfo, winnerInfo);
     }
 
     @Test
@@ -101,6 +102,7 @@ class AuctionTest {
 
         // Using another account
         Credentials notOwner = Credentials.create("a");
+        Auction.WinnerInfo expectedWinnerInfo = new Auction.WinnerInfo(notOwner.getAddress(), BigInteger.TWO);
         transactionManager.sendTransaction(gasProvider.getGasPrice(""), gasProvider.getGasLimit(""),
                 notOwner.getAddress(), "", Convert.toWei("1.0", Convert.Unit.ETHER).toBigInteger());
         TransactionManager myTransactionManager = new RawTransactionManager(web3j, notOwner);
@@ -108,9 +110,9 @@ class AuctionTest {
         notOwnerAuction.placeBid(BigInteger.TWO).send();
 
         auction.finishAuction().send();
-        String winnerAddress = auction.getWinner().send();
+        Auction.WinnerInfo winnerInfo = auction.getWinner().send();
 
-        assertEquals(notOwner.getAddress(), winnerAddress);
+        assertEquals(expectedWinnerInfo, winnerInfo);
     }
 
     @Test

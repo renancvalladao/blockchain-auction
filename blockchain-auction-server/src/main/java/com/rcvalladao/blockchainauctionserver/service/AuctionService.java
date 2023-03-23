@@ -4,6 +4,7 @@ import com.rcvalladao.blockchainauctionserver.contract.Auction;
 import com.rcvalladao.blockchainauctionserver.dto.ContractInfo;
 import com.rcvalladao.blockchainauctionserver.dto.ProviderInfo;
 import com.rcvalladao.blockchainauctionserver.dto.RequirementsRequest;
+import com.rcvalladao.blockchainauctionserver.dto.WinnerInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -55,14 +56,19 @@ public class AuctionService {
         return contractInfo;
     }
 
-    public String getWinner(String contractAddress) throws Exception {
+    public WinnerInfo getWinner(String contractAddress) throws Exception {
         Auction auction = Auction.load(contractAddress, this.web3j, this.transactionManager, new DefaultGasProvider());
-        return auction.getWinner().send();
+        Auction.WinnerInfo winnerInfo = auction.getWinner().send();
+        return this.auctionWinnerInfoToWinnerInfo(winnerInfo);
     }
 
     private Auction.Requirements requirementsRequestToAuctionRequirements(RequirementsRequest requirementsRequest) {
         return new Auction.Requirements(requirementsRequest.getVnfName(), requirementsRequest.getVnfType(),
                 BigInteger.valueOf(requirementsRequest.getNumCpus()));
+    }
+
+    private WinnerInfo auctionWinnerInfoToWinnerInfo(Auction.WinnerInfo winnerInfo) {
+        return WinnerInfo.builder().address(winnerInfo.bidderAddress).cost(winnerInfo.cost.intValue()).build();
     }
 
 }

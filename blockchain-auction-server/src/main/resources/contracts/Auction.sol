@@ -9,6 +9,11 @@ contract Auction {
         uint8 numCpus;
     }
 
+    struct WinnerInfo {
+        address bidderAddress;
+        uint cost;
+    }
+
     Requirements requirements;
     address owner;
     address lowestBidder;
@@ -26,9 +31,9 @@ contract Auction {
         return requirements;
     }
 
-    function getWinner() public view returns (address) {
+    function getWinner() public view returns (WinnerInfo memory) {
         require(ended, "Auction has not ended yet");
-        return lowestBidder;
+        return WinnerInfo(lowestBidder, lowestBid);
     }
 
     function placeBid(uint value) external {
