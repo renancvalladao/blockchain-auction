@@ -27,7 +27,7 @@ const App = () => {
   const [auctionState, setAuctionState] = useState<AuctionState>(
     AuctionState.NOT_STARTED
   )
-  const [auctionWinner, setAuctionWinner] = useState<string>('')
+  const [auctionWinner, setAuctionWinner] = useState<WinnerInfo>()
   const [isLoading, setIsLoading] = useState(false)
   const [providers, setProviders] = useState<ProviderInfo[]>([])
 
@@ -73,9 +73,9 @@ const App = () => {
       const response = await fetch(
         `http://localhost:8080/auctions/${auctionAddress}/winner`
       )
-      const winner = await response.text()
+      const data: WinnerInfo = await response.json()
       setAuctionState(AuctionState.FINISHED)
-      setAuctionWinner(winner)
+      setAuctionWinner(data)
     }, 40000)
   }
 
@@ -104,7 +104,7 @@ const App = () => {
                   />
                 )}
                 {auctionState === AuctionState.STARTED && <AuctionProgress />}
-                {auctionState === AuctionState.FINISHED && (
+                {auctionState === AuctionState.FINISHED && auctionWinner && (
                   <AuctionResult
                     winner={auctionWinner}
                     onNewAuction={newAuctionHandler}
