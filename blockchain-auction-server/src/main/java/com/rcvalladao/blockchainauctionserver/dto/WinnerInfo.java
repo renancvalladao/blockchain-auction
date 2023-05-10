@@ -10,6 +10,7 @@ import lombok.Getter;
 public class WinnerInfo {
 
     private final String address;
+    private final String name;
     private final int cost;
 
 }
