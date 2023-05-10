@@ -10,7 +10,10 @@ const AuctionResult = ({ winner, onNewAuction }: AuctionResultProps) => {
     <Stack spacing={4}>
       <Box>
         <Text textAlign={'center'} fontWeight={'medium'}>
-          Winner: {winner.address}
+          Winner: {winner.name}
+        </Text>
+        <Text textAlign={'center'} fontWeight={'medium'}>
+          Address: {winner.address}
         </Text>
         <Text textAlign={'center'} fontWeight={'medium'}>
           Cost: {winner.cost}
