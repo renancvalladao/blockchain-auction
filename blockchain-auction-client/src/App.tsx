@@ -14,7 +14,6 @@ import { useEffect, useState } from 'react'
 import AuctionForm from './components/AuctionForm'
 import AuctionProgress from './components/AuctionProgress'
 import AuctionResult from './components/AuctionResult'
-import ProviderForm from './components/ProviderForm'
 import ProvidersList from './components/ProvidersList'
 
 enum AuctionState {
@@ -41,19 +40,6 @@ const App = () => {
     fetchProviders()
   }, [])
 
-  const addProviderHandler = async (providerInfo: ProviderInfo) => {
-    const response = await fetch('http://localhost:8080/providers', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(providerInfo)
-    })
-    if (response.ok) {
-      setProviders((prevProviders) => [...prevProviders, providerInfo])
-    }
-  }
-
   const createAuctionHandler = async (
     requirementsRequest: RequirementsRequest
   ) => {
@@ -76,7 +62,7 @@ const App = () => {
       const data: WinnerInfo = await response.json()
       setAuctionState(AuctionState.FINISHED)
       setAuctionWinner(data)
-    }, 40000)
+    }, 60000)
   }
 
   const newAuctionHandler = () => {
@@ -112,10 +98,7 @@ const App = () => {
                 )}
               </TabPanel>
               <TabPanel>
-                <Stack spacing={4}>
-                  <ProvidersList providers={providers} />
-                  <ProviderForm onAddProvider={addProviderHandler} />
-                </Stack>
+                <ProvidersList providers={providers} />
               </TabPanel>
             </TabPanels>
           </Tabs>
