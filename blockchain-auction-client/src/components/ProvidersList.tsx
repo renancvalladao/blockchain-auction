@@ -19,14 +19,14 @@ const ProvidersList = ({ providers }: ProvidersListProps) => {
         <Thead>
           <Tr>
             <Th>Name</Th>
-            <Th>Endpoint</Th>
+            <Th>Address</Th>
           </Tr>
         </Thead>
         <Tbody>
           {providers.map((provider) => (
             <Tr key={provider.name}>
               <Td>{provider.name}</Td>
-              <Td>{provider.bidEndpoint}</Td>
+              <Td>{provider.address}</Td>
             </Tr>
           ))}
         </Tbody>
