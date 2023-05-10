@@ -10,6 +10,6 @@ import lombok.Getter;
 public class ProviderInfo {
 
     private final String name;
-    private final String bidEndpoint;
+    private final String address;
 
 }
