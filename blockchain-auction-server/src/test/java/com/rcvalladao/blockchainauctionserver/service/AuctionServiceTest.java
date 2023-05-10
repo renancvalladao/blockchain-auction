@@ -2,20 +2,17 @@ package com.rcvalladao.blockchainauctionserver.service;
 
 import com.rcvalladao.blockchainauctionserver.contract.Auction;
 import com.rcvalladao.blockchainauctionserver.dto.ContractInfo;
-import com.rcvalladao.blockchainauctionserver.dto.ProviderInfo;
 import com.rcvalladao.blockchainauctionserver.dto.RequirementsRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.RemoteCall;
 import org.web3j.tx.TransactionManager;
 
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -34,9 +31,9 @@ class AuctionServiceTest {
     @Mock
     ScheduledExecutorService scheduledExecutorService;
     @Mock
-    ExecutorService executorService;
-    @Mock
     ProviderService providerService;
+    @Mock
+    SimpMessagingTemplate simpMessagingTemplate;
     @Mock
     RemoteCall<Auction> remoteCall;
     @Mock
@@ -47,7 +44,7 @@ class AuctionServiceTest {
     @Test
     void givenRequirements_whenCreateAuction_ThenDeployAuction() throws Exception {
         AuctionService auctionService = new AuctionService(this.web3j, this.transactionManager,
-                this.scheduledExecutorService, this.executorService, this.providerService);
+                this.scheduledExecutorService, this.providerService,this.simpMessagingTemplate);
         RequirementsRequest requirementsRequest = RequirementsRequest.builder()
                 .vnfName("Name")
                 .vnfType("Type")
@@ -59,12 +56,8 @@ class AuctionServiceTest {
                 .address("address")
                 .ownerAddress(this.transactionManager.getFromAddress())
                 .build();
-        ProviderInfo abc = ProviderInfo.builder().bidEndpoint("abc").build();
-        ProviderInfo def = ProviderInfo.builder().bidEndpoint("def").build();
-        List<ProviderInfo> providerInfoList = Arrays.asList(abc, def);
         when(this.remoteCall.send()).thenReturn(this.auction);
         when(this.auction.getContractAddress()).thenReturn("address");
-        when(this.providerService.getProvidersInfo()).thenReturn(providerInfoList);
 
         ContractInfo actualContractInfo;
         try (MockedStatic<Auction> auctionStatic = Mockito.mockStatic(Auction.class)) {
@@ -75,7 +68,7 @@ class AuctionServiceTest {
         }
 
         verify(this.scheduledExecutorService).schedule(any(Runnable.class), eq(20L), eq(TimeUnit.SECONDS));
-        verify(this.executorService, times(2)).submit(any(Runnable.class));
+        verify(this.simpMessagingTemplate, times(1)).convertAndSend("/auction-notifier", expectedContractInfo);
         assertEquals(expectedRequirements, this.requirementsArgumentCaptor.getValue());
         assertEquals(expectedContractInfo, actualContractInfo);
     }
