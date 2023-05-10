@@ -6,7 +6,7 @@ type RequirementsRequest = {
 
 type ProviderInfo = {
   name: string
-  bidEndpoint: string
+  address: string
 }
 
 type ContractInfo = {
@@ -16,5 +16,6 @@ type ContractInfo = {
 
 type WinnerInfo = {
   address: string
+  name: string
   cost: number
 }
