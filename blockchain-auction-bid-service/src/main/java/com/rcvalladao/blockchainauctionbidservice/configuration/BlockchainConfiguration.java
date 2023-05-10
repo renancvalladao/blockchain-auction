@@ -6,16 +6,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.http.HttpService;
+import org.web3j.protocol.websocket.WebSocketService;
 import org.web3j.tx.RawTransactionManager;
 import org.web3j.tx.TransactionManager;
+
+import java.net.ConnectException;
 
 @Configuration
 public class BlockchainConfiguration {
 
     @Bean(destroyMethod = "shutdown")
-    Web3j web3j(@Value("${node.url}") String nodeUrl) {
-        return Web3j.build(new HttpService(nodeUrl));
+    Web3j web3j(@Value("${node.websocketUrl}") String nodeWebsocketUrl) throws ConnectException {
+        WebSocketService webSocketService = new WebSocketService(nodeWebsocketUrl, true);
+        webSocketService.connect();
+        return Web3j.build(webSocketService);
     }
 
     @Qualifier("companyAbcTransactionManager")
