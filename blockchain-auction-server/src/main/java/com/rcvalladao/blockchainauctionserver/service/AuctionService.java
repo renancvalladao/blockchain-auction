@@ -7,15 +7,13 @@ import com.rcvalladao.blockchainauctionserver.dto.RequirementsRequest;
 import com.rcvalladao.blockchainauctionserver.dto.WinnerInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.web3j.protocol.Web3j;
 import org.web3j.tx.TransactionManager;
 import org.web3j.tx.gas.DefaultGasProvider;
 
 import java.math.BigInteger;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -28,13 +26,14 @@ public class AuctionService {
     private final Web3j web3j;
     private final TransactionManager transactionManager;
     private final ScheduledExecutorService scheduledExecutorService;
-    private final ExecutorService executorService;
     private final ProviderService providerService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     public ContractInfo createAuction(RequirementsRequest requirementsRequest) throws Exception {
         Auction.Requirements requirements = this.requirementsRequestToAuctionRequirements(requirementsRequest);
         Auction auction = Auction.deploy(this.web3j, this.transactionManager, new DefaultGasProvider(), requirements,
                 BigInteger.valueOf(BIDDING_TIME)).send();
+        log.info("Auction smart contract deployed");
         this.scheduledExecutorService.schedule(() -> {
             try {
                 auction.finishAuction().send();
@@ -47,11 +46,7 @@ public class AuctionService {
                 .address(auction.getContractAddress())
                 .ownerAddress(this.transactionManager.getFromAddress())
                 .build();
-        List<ProviderInfo> providersAddresses = this.providerService.getProvidersInfo();
-        providersAddresses.forEach(providerInfo -> this.executorService.submit(() -> {
-            RestTemplate restTemplate = new RestTemplate();
-            restTemplate.postForEntity(providerInfo.getBidEndpoint(), contractInfo, Object.class);
-        }));
+        this.simpMessagingTemplate.convertAndSend("/auction-notifier", contractInfo);
 
         return contractInfo;
     }
@@ -68,7 +63,8 @@ public class AuctionService {
     }
 
     private WinnerInfo auctionWinnerInfoToWinnerInfo(Auction.WinnerInfo winnerInfo) {
-        return WinnerInfo.builder().address(winnerInfo.bidderAddress).cost(winnerInfo.cost.intValue()).build();
+        ProviderInfo providerInfo = this.providerService.getProviderInfoByAddress(winnerInfo.bidderAddress);
+        return WinnerInfo.builder().address(winnerInfo.bidderAddress).name(providerInfo.getName()).cost(winnerInfo.cost.intValue()).build();
     }
 
 }

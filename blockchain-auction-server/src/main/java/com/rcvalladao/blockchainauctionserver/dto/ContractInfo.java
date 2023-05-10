@@ -1,12 +1,10 @@
 package com.rcvalladao.blockchainauctionserver.dto;
 
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.Data;
 
 @Builder
-@EqualsAndHashCode
-@Getter
+@Data
 public class ContractInfo {
 
     private final String address;
