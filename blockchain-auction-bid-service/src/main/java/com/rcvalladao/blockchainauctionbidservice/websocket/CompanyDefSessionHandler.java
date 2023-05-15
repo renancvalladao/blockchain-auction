@@ -21,7 +21,7 @@ public class CompanyDefSessionHandler extends StompSessionHandlerAdapter {
 
     @Override
     public void afterConnected(StompSession session, @NotNull StompHeaders connectedHeaders) {
-        session.subscribe("/auction-notifier", this);
+        session.subscribe("/auction-started", this);
     }
 
     @NotNull
