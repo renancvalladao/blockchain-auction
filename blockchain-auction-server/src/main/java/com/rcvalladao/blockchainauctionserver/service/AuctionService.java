@@ -38,6 +38,8 @@ public class AuctionService {
             try {
                 auction.finishAuction().send();
                 log.info("Auction finished successfully");
+                this.simpMessagingTemplate.convertAndSend("/auction-finished/" + auction.getContractAddress(),
+                        this.getWinner(auction.getContractAddress()));
             } catch (Exception e) {
                 log.error("Failed to finish auction", e);
             }
@@ -46,7 +48,7 @@ public class AuctionService {
                 .address(auction.getContractAddress())
                 .ownerAddress(this.transactionManager.getFromAddress())
                 .build();
-        this.simpMessagingTemplate.convertAndSend("/auction-notifier", contractInfo);
+        this.simpMessagingTemplate.convertAndSend("/auction-started", contractInfo);
 
         return contractInfo;
     }
