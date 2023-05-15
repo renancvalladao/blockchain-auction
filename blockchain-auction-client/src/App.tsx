@@ -15,6 +15,8 @@ import AuctionForm from './components/AuctionForm'
 import AuctionProgress from './components/AuctionProgress'
 import AuctionResult from './components/AuctionResult'
 import ProvidersList from './components/ProvidersList'
+import SockJS from 'sockjs-client'
+import Stomp from 'stompjs'
 
 enum AuctionState {
   NOT_STARTED,
@@ -29,6 +31,16 @@ const App = () => {
   const [auctionWinner, setAuctionWinner] = useState<WinnerInfo>()
   const [isLoading, setIsLoading] = useState(false)
   const [providers, setProviders] = useState<ProviderInfo[]>([])
+  const [stompClient, setStompClient] = useState<any>(null)
+
+  useEffect(() => {
+    const socket = new SockJS('http://localhost:8080/ws/client')
+    const stompClient = Stomp.over(socket)
+    stompClient.connect({})
+    setStompClient(stompClient)
+
+    return () => stompClient.disconnect()
+  }, [])
 
   useEffect(() => {
     const fetchProviders = async () => {
@@ -55,14 +67,15 @@ const App = () => {
     const auctionAddress = data.address
     setIsLoading(false)
     setAuctionState(AuctionState.STARTED)
-    setTimeout(async () => {
-      const response = await fetch(
-        `http://localhost:8080/auctions/${auctionAddress}/winner`
-      )
-      const data: WinnerInfo = await response.json()
-      setAuctionState(AuctionState.FINISHED)
-      setAuctionWinner(data)
-    }, 60000)
+    const subscription = stompClient.subscribe(
+      `/auction-finished/${auctionAddress}`,
+      (payload: any) => {
+        const winnerInfo: WinnerInfo = JSON.parse(payload.body)
+        setAuctionState(AuctionState.FINISHED)
+        setAuctionWinner(winnerInfo)
+        subscription.unsubscribe()
+      }
+    )
   }
 
   const newAuctionHandler = () => {
