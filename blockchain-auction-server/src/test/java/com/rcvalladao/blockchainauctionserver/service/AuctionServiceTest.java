@@ -68,7 +68,7 @@ class AuctionServiceTest {
         }
 
         verify(this.scheduledExecutorService).schedule(any(Runnable.class), eq(20L), eq(TimeUnit.SECONDS));
-        verify(this.simpMessagingTemplate, times(1)).convertAndSend("/auction-notifier", expectedContractInfo);
+        verify(this.simpMessagingTemplate, times(1)).convertAndSend("/auction-started", expectedContractInfo);
         assertEquals(expectedRequirements, this.requirementsArgumentCaptor.getValue());
         assertEquals(expectedContractInfo, actualContractInfo);
     }
