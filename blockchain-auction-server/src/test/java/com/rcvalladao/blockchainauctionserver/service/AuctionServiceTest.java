@@ -51,7 +51,8 @@ class AuctionServiceTest {
                 .numCpus(4)
                 .build();
         Auction.Requirements expectedRequirements = new Auction.Requirements(requirementsRequest.getVnfName(),
-                requirementsRequest.getVnfType(), BigInteger.valueOf(requirementsRequest.getNumCpus()));
+                requirementsRequest.getVnfType(), BigInteger.valueOf(requirementsRequest.getNumCpus()),
+                BigInteger.valueOf(requirementsRequest.getMemSize()));
         ContractInfo expectedContractInfo = ContractInfo.builder()
                 .address("address")
                 .ownerAddress(this.transactionManager.getFromAddress())
