@@ -61,7 +61,7 @@ public class AuctionService {
 
     private Auction.Requirements requirementsRequestToAuctionRequirements(RequirementsRequest requirementsRequest) {
         return new Auction.Requirements(requirementsRequest.getVnfName(), requirementsRequest.getVnfType(),
-                BigInteger.valueOf(requirementsRequest.getNumCpus()));
+                BigInteger.valueOf(requirementsRequest.getNumCpus()), BigInteger.valueOf(requirementsRequest.getMemSize()));
     }
 
     private WinnerInfo auctionWinnerInfoToWinnerInfo(Auction.WinnerInfo winnerInfo) {

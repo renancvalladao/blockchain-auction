@@ -12,5 +12,6 @@ public class RequirementsRequest {
     private final String vnfName;
     private final String vnfType;
     private final int numCpus;
+    private final int memSize;
 
 }

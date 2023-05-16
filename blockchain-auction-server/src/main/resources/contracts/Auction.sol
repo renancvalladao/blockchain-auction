@@ -7,6 +7,7 @@ contract Auction {
         string vnfName;
         string vnfType;
         uint8 numCpus;
+        uint8 memSize;
     }
 
     struct WinnerInfo {
