@@ -36,8 +36,8 @@ class CompanyAbcBidServiceTest {
         CompanyAbcBidService companyAbcBidService = new CompanyAbcBidService(this.web3j, this.transactionManager,
                 this.companyAbcCostService);
         ContractInfo contractInfo = ContractInfo.builder().address("address").build();
-        when(this.auction.getRequirements().send()).thenReturn(new Auction.Requirements("name", "type", BigInteger.TWO));
-        when(this.companyAbcCostService.calculateCost(anyInt())).thenReturn(4);
+        when(this.auction.getRequirements().send()).thenReturn(new Auction.Requirements("name", "type", BigInteger.TWO, BigInteger.TWO));
+        when(this.companyAbcCostService.calculateCost(anyInt(), anyInt())).thenReturn(4);
 
         try (MockedStatic<Auction> auctionStatic = Mockito.mockStatic(Auction.class)) {
             auctionStatic.when(() -> Auction.load(this.stringArgumentCaptor.capture(), any(Web3j.class),
@@ -48,7 +48,7 @@ class CompanyAbcBidServiceTest {
 
         verify(this.auction.getRequirements()).send();
         verify(this.auction.placeBid(BigInteger.valueOf(4))).send();
-        verify(this.companyAbcCostService).calculateCost(2);
+        verify(this.companyAbcCostService).calculateCost(2, 2);
         assertEquals(contractInfo.getAddress(), this.stringArgumentCaptor.getValue());
     }
 

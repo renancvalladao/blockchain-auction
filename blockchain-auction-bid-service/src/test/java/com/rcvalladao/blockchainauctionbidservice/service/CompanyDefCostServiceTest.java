@@ -10,8 +10,9 @@ class CompanyDefCostServiceTest {
     void givenSpec_whenCalculateCost_ThenReturnCost() {
         CompanyDefCostService companyDefCostService = new CompanyDefCostService();
         int numCpus = 4;
-        int expectedCost = numCpus * 12;
-        int actualCost = companyDefCostService.calculateCost(numCpus);
+        int memSize = 3;
+        int expectedCost = numCpus * 12 + memSize * 4;
+        int actualCost = companyDefCostService.calculateCost(numCpus, memSize);
         assertEquals(expectedCost, actualCost);
     }
 
