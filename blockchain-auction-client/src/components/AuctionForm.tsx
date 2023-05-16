@@ -21,10 +21,11 @@ const AuctionForm = ({ onCreateAuction, isLoading }: AuctionFormProps) => {
   const [vnfName, setVnfName] = useState('')
   const [vnfType, setVnfType] = useState('')
   const [numCpus, setNumCpus] = useState(0)
+  const [memSize, setMemSize] = useState(0)
 
   const submitHandler = (e: FormEvent) => {
     e.preventDefault()
-    onCreateAuction({ vnfName, vnfType, numCpus })
+    onCreateAuction({ vnfName, vnfType, numCpus, memSize })
   }
 
   return (
@@ -45,6 +46,21 @@ const AuctionForm = ({ onCreateAuction, isLoading }: AuctionFormProps) => {
             max={20}
             min={0}
             onChange={(value) => setNumCpus(+value)}
+          >
+            <NumberInputField />
+            <NumberInputStepper>
+              <NumberIncrementStepper />
+              <NumberDecrementStepper />
+            </NumberInputStepper>
+          </NumberInput>
+        </FormControl>
+        <FormControl>
+          <FormLabel>Memory Size (GB)</FormLabel>
+          <NumberInput
+            value={memSize}
+            max={64}
+            min={0}
+            onChange={(value) => setMemSize(+value)}
           >
             <NumberInputField />
             <NumberInputStepper>
