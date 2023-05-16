@@ -23,7 +23,7 @@ public class CompanyDefBidService {
     public void placeBid(ContractInfo contractInfo) throws Exception {
         Auction auction = Auction.load(contractInfo.getAddress(), this.web3j, this.companyDefTransactionManager, new DefaultGasProvider());
         Auction.Requirements requirements = auction.getRequirements().send();
-        int cost = this.companyDefCostService.calculateCost(requirements.numCpus.intValue());
+        int cost = this.companyDefCostService.calculateCost(requirements.numCpus.intValue(), requirements.memSize.intValue());
         auction.placeBid(BigInteger.valueOf(cost)).send();
         log.info("Bid placed");
     }
