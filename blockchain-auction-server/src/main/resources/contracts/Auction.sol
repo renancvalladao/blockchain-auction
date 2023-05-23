@@ -15,12 +15,18 @@ contract Auction {
         uint cost;
     }
 
+    struct Bid {
+        address bidder;
+        uint value;
+    }
+
     Requirements requirements;
     address owner;
     address lowestBidder;
     uint lowestBid;
     uint endTime;
     bool ended;
+    Bid[] bidHistory;
 
     constructor(Requirements memory _requirements, uint biddingTime) {
         requirements = _requirements;
@@ -37,6 +43,10 @@ contract Auction {
         return WinnerInfo(lowestBidder, lowestBid);
     }
 
+    function getBidHistory() public view returns (Bid[] memory) {
+        return bidHistory;
+    }
+
     function placeBid(uint value) external {
         require(!ended, "Auction has already ended");
         require(value > 0, "Bid value must be greater than zero");
@@ -44,6 +54,7 @@ contract Auction {
             lowestBid = value;
             lowestBidder = msg.sender;
         }
+        bidHistory.push(Bid(msg.sender, value));
     }
 
     function finishAuction() external {

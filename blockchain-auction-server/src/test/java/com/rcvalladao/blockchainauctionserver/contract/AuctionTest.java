@@ -12,6 +12,8 @@ import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.utils.Convert;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -121,6 +123,30 @@ class AuctionTest {
         Auction auction = Auction.deploy(web3j, transactionManager, gasProvider, requirements, BigInteger.TEN).send();
 
         assertThrows(ContractCallException.class, () -> auction.getWinner().send());
+    }
+
+    @Test
+    void givenTwoBids_whenGetBidHistory_thenReturnTwoBids(Web3j web3j, TransactionManager transactionManager, ContractGasProvider gasProvider) throws Exception {
+        Auction.Requirements requirements = new Auction.Requirements("Name", "Type", BigInteger.TWO, BigInteger.TWO);
+        Auction auction = Auction.deploy(web3j, transactionManager, gasProvider, requirements, BigInteger.ZERO).send();
+        List<Auction.Bid> expectedBidHistory = new ArrayList<>();
+        auction.placeBid(BigInteger.TEN).send();
+        expectedBidHistory.add(new Auction.Bid(transactionManager.getFromAddress(), BigInteger.TEN));
+
+        // Using another account
+        Credentials notOwner = Credentials.create("a");
+        transactionManager.sendTransaction(gasProvider.getGasPrice(""), gasProvider.getGasLimit(""),
+                notOwner.getAddress(), "", Convert.toWei("1.0", Convert.Unit.ETHER).toBigInteger());
+        TransactionManager myTransactionManager = new RawTransactionManager(web3j, notOwner);
+        Auction notOwnerAuction = Auction.load(auction.getContractAddress(), web3j, myTransactionManager, gasProvider);
+        notOwnerAuction.placeBid(BigInteger.TWO).send();
+        expectedBidHistory.add(new Auction.Bid(myTransactionManager.getFromAddress(), BigInteger.TWO));
+
+        auction.finishAuction().send();
+        List<Auction.Bid> bidHistory = auction.getBidHistory().send();
+        for (int i = 0; i < bidHistory.size(); i++) {
+            assertEquals(expectedBidHistory.get(i), bidHistory.get(i));
+        }
     }
 
 }
