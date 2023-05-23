@@ -14,6 +14,7 @@ import org.web3j.tx.TransactionManager;
 import org.web3j.tx.gas.DefaultGasProvider;
 
 import java.math.BigInteger;
+import java.time.Duration;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -22,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class AuctionService {
 
-    private static final int BIDDING_TIME = 20;
+    private static final Duration BIDDING_TIME = Duration.ofSeconds(20);
     private final Web3j web3j;
     private final TransactionManager transactionManager;
     private final ScheduledExecutorService scheduledExecutorService;
@@ -32,7 +33,7 @@ public class AuctionService {
     public ContractInfo createAuction(RequirementsRequest requirementsRequest) throws Exception {
         Auction.Requirements requirements = this.requirementsRequestToAuctionRequirements(requirementsRequest);
         Auction auction = Auction.deploy(this.web3j, this.transactionManager, new DefaultGasProvider(), requirements,
-                BigInteger.valueOf(BIDDING_TIME)).send();
+                BigInteger.valueOf(BIDDING_TIME.getSeconds())).send();
         log.info("Auction smart contract deployed");
         this.scheduledExecutorService.schedule(() -> {
             try {
@@ -43,7 +44,7 @@ public class AuctionService {
             } catch (Exception e) {
                 log.error("Failed to finish auction", e);
             }
-        }, BIDDING_TIME, TimeUnit.SECONDS);
+        }, BIDDING_TIME.getSeconds(), TimeUnit.SECONDS);
         ContractInfo contractInfo = ContractInfo.builder()
                 .address(auction.getContractAddress())
                 .ownerAddress(this.transactionManager.getFromAddress())
