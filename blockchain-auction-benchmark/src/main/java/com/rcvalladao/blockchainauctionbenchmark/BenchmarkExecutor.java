@@ -4,6 +4,7 @@ import com.rcvalladao.blockchainauctionbidservice.service.CompanyAbcBidService;
 import com.rcvalladao.blockchainauctionbidservice.service.CompanyAbcCostService;
 import com.rcvalladao.blockchainauctionbidservice.websocket.CompanyAbcSessionHandler;
 import com.rcvalladao.blockchainauctionbidservice.websocket.CompanyAbcWebSocketClient;
+import com.rcvalladao.blockchainauctionserver.dto.OptionalRequirement;
 import com.rcvalladao.blockchainauctionserver.dto.RequirementsRequest;
 import com.rcvalladao.blockchainauctionserver.service.AuctionService;
 import com.rcvalladao.blockchainauctionserver.service.ProviderService;
@@ -46,6 +47,8 @@ public class BenchmarkExecutor {
                 .vnfName("test")
                 .numCpus(1)
                 .memSize(1)
+                .maxDelay(OptionalRequirement.builder().value(1).required(false).build())
+                .bandwidth(OptionalRequirement.builder().value(1).required(false).build())
                 .build();
         // N auctions
         CompanyAbcBidService companyAbcBidService = new CompanyAbcBidService(this.web3j, this.transactionManager, new CompanyAbcCostService());
