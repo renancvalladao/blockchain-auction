@@ -13,7 +13,6 @@ import java.math.BigInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,8 +35,10 @@ class CompanyDefBidServiceTest {
         CompanyDefBidService companyDefBidService = new CompanyDefBidService(this.web3j, this.transactionManager,
                 this.companyDefCostService);
         ContractInfo contractInfo = ContractInfo.builder().address("address").build();
-        when(this.auction.getRequirements().send()).thenReturn(new Auction.Requirements("name", "type", BigInteger.TWO, BigInteger.TWO));
-        when(this.companyDefCostService.calculateCost(anyInt(), anyInt())).thenReturn(4);
+        Auction.Requirements requirements = new Auction.Requirements("name", "type", BigInteger.TWO, BigInteger.TWO,
+                new Auction.OptionalRequirement(BigInteger.ONE, true), new Auction.OptionalRequirement(BigInteger.ONE, false));
+        when(this.auction.getRequirements().send()).thenReturn(requirements);
+        when(this.companyDefCostService.calculateCost(any())).thenReturn(4);
 
         try (MockedStatic<Auction> auctionStatic = Mockito.mockStatic(Auction.class)) {
             auctionStatic.when(() -> Auction.load(this.stringArgumentCaptor.capture(), any(Web3j.class),
@@ -47,8 +48,8 @@ class CompanyDefBidServiceTest {
         }
 
         verify(this.auction.getRequirements()).send();
-        verify(this.auction.placeBid(BigInteger.valueOf(4))).send();
-        verify(this.companyDefCostService).calculateCost(2, 2);
+        verify(this.auction.placeBid(BigInteger.valueOf(4))).sendAsync();
+        verify(this.companyDefCostService).calculateCost(requirements);
         assertEquals(contractInfo.getAddress(), this.stringArgumentCaptor.getValue());
     }
 
