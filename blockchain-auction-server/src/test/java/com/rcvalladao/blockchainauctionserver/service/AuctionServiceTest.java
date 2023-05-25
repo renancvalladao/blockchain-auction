@@ -2,6 +2,7 @@ package com.rcvalladao.blockchainauctionserver.service;
 
 import com.rcvalladao.blockchainauctionserver.contract.Auction;
 import com.rcvalladao.blockchainauctionserver.dto.ContractInfo;
+import com.rcvalladao.blockchainauctionserver.dto.OptionalRequirement;
 import com.rcvalladao.blockchainauctionserver.dto.RequirementsRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,10 +50,13 @@ class AuctionServiceTest {
                 .vnfName("Name")
                 .vnfType("Type")
                 .numCpus(4)
+                .maxDelay(OptionalRequirement.builder().value(1).required(true).build())
+                .bandwidth(OptionalRequirement.builder().value(1).required(false).build())
                 .build();
         Auction.Requirements expectedRequirements = new Auction.Requirements(requirementsRequest.getVnfName(),
                 requirementsRequest.getVnfType(), BigInteger.valueOf(requirementsRequest.getNumCpus()),
-                BigInteger.valueOf(requirementsRequest.getMemSize()));
+                BigInteger.valueOf(requirementsRequest.getMemSize()), new Auction.OptionalRequirement(BigInteger.ONE, true),
+                new Auction.OptionalRequirement(BigInteger.ONE, false));
         ContractInfo expectedContractInfo = ContractInfo.builder()
                 .address("address")
                 .ownerAddress(this.transactionManager.getFromAddress())
@@ -68,7 +72,7 @@ class AuctionServiceTest {
             actualContractInfo = auctionService.createAuction(requirementsRequest);
         }
 
-        verify(this.scheduledExecutorService).schedule(any(Runnable.class), eq(20L), eq(TimeUnit.SECONDS));
+        verify(this.scheduledExecutorService).schedule(any(Runnable.class), eq(30L), eq(TimeUnit.SECONDS));
         verify(this.simpMessagingTemplate, times(1)).convertAndSend("/auction-started", expectedContractInfo);
         assertEquals(expectedRequirements, this.requirementsArgumentCaptor.getValue());
         assertEquals(expectedContractInfo, actualContractInfo);
