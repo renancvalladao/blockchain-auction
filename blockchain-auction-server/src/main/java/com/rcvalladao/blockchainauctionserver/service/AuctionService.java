@@ -1,10 +1,7 @@
 package com.rcvalladao.blockchainauctionserver.service;
 
 import com.rcvalladao.blockchainauctionserver.contract.Auction;
-import com.rcvalladao.blockchainauctionserver.dto.ContractInfo;
-import com.rcvalladao.blockchainauctionserver.dto.ProviderInfo;
-import com.rcvalladao.blockchainauctionserver.dto.RequirementsRequest;
-import com.rcvalladao.blockchainauctionserver.dto.WinnerInfo;
+import com.rcvalladao.blockchainauctionserver.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -64,7 +61,13 @@ public class AuctionService {
 
     private Auction.Requirements requirementsRequestToAuctionRequirements(RequirementsRequest requirementsRequest) {
         return new Auction.Requirements(requirementsRequest.getVnfName(), requirementsRequest.getVnfType(),
-                BigInteger.valueOf(requirementsRequest.getNumCpus()), BigInteger.valueOf(requirementsRequest.getMemSize()));
+                BigInteger.valueOf(requirementsRequest.getNumCpus()), BigInteger.valueOf(requirementsRequest.getMemSize()),
+                this.optionalRequirementToAuctionOptionalRequirement(requirementsRequest.getMaxDelay()),
+                this.optionalRequirementToAuctionOptionalRequirement(requirementsRequest.getBandwidth()));
+    }
+
+    private Auction.OptionalRequirement optionalRequirementToAuctionOptionalRequirement(OptionalRequirement optionalRequirement) {
+        return new Auction.OptionalRequirement(BigInteger.valueOf(optionalRequirement.getValue()), optionalRequirement.isRequired());
     }
 
     private WinnerInfo auctionWinnerInfoToWinnerInfo(Auction.WinnerInfo winnerInfo) {

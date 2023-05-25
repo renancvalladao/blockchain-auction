@@ -13,5 +13,7 @@ public class RequirementsRequest {
     private final String vnfType;
     private final int numCpus;
     private final int memSize;
+    private final OptionalRequirement maxDelay;
+    private final OptionalRequirement bandwidth;
 
 }

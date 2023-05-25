@@ -3,11 +3,18 @@ pragma solidity ^0.8.0;
 
 contract Auction {
 
+    struct OptionalRequirement {
+        uint8 value;
+        bool required;
+    }
+
     struct Requirements {
         string vnfName;
         string vnfType;
         uint8 numCpus;
         uint8 memSize;
+        OptionalRequirement maxDelay;
+        OptionalRequirement bandwidth;
     }
 
     struct WinnerInfo {
