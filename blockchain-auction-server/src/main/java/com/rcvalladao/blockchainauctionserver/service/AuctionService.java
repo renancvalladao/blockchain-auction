@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class AuctionService {
 
-    private static final Duration BIDDING_TIME = Duration.ofSeconds(20);
+    private static final Duration BIDDING_TIME = Duration.ofSeconds(30);
     private final Web3j web3j;
     private final TransactionManager transactionManager;
     private final ScheduledExecutorService scheduledExecutorService;
@@ -34,16 +34,18 @@ public class AuctionService {
         Auction.Requirements requirements = this.requirementsRequestToAuctionRequirements(requirementsRequest);
         Auction auction = Auction.deploy(this.web3j, this.transactionManager, new DefaultGasProvider(), requirements,
                 BigInteger.valueOf(BIDDING_TIME.getSeconds())).send();
-        log.info("Auction smart contract deployed");
+        log.info("Auction smart contract deployed " + auction.getContractAddress());
         this.scheduledExecutorService.schedule(() -> {
-            try {
-                auction.finishAuction().send();
-                log.info("Auction finished successfully");
-                this.simpMessagingTemplate.convertAndSend("/auction-finished/" + auction.getContractAddress(),
-                        this.getWinner(auction.getContractAddress()));
-            } catch (Exception e) {
-                log.error("Failed to finish auction", e);
-            }
+            auction.finishAuction().sendAsync().thenAccept(action -> {
+                log.info("Auction finished successfully " + auction.getContractAddress());
+                try {
+                    this.simpMessagingTemplate.convertAndSend("/auction-finished/" + auction.getContractAddress(),
+                            this.getWinner(auction.getContractAddress()));
+                } catch (Exception e) {
+                    log.error("Failed to finish auction", e);
+                }
+            });
+
         }, BIDDING_TIME.getSeconds(), TimeUnit.SECONDS);
         ContractInfo contractInfo = ContractInfo.builder()
                 .address(auction.getContractAddress())
