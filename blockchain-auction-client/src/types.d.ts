@@ -1,8 +1,15 @@
+type OptionalRequirement = {
+  value: number
+  required: boolean
+}
+
 type RequirementsRequest = {
   vnfName: string
   vnfType: string
   numCpus: number
   memSize: number
+  maxDelay: OptionalRequirement
+  bandwidth: OptionalRequirement
 }
 
 type ProviderInfo = {
