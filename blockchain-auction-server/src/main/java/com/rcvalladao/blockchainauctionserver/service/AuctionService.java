@@ -12,8 +12,12 @@ import org.web3j.tx.gas.DefaultGasProvider;
 
 import java.math.BigInteger;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -37,7 +41,7 @@ public class AuctionService {
                 log.info("Auction finished successfully " + auction.getContractAddress());
                 try {
                     this.simpMessagingTemplate.convertAndSend("/auction-finished/" + auction.getContractAddress(),
-                            this.getWinner(auction.getContractAddress()));
+                            this.getResult(auction.getContractAddress()));
                 } catch (Exception e) {
                     log.error("Failed to finish auction", e);
                 }
@@ -53,10 +57,23 @@ public class AuctionService {
         return contractInfo;
     }
 
-    public WinnerInfo getWinner(String contractAddress) throws Exception {
+    private Map<String, Object> getResult(String contractAddress) throws Exception {
+        Map<String, Object> result = new HashMap<>();
+        result.put("winnerInfo", this.getWinner(contractAddress));
+        result.put("bidHistory", this.getBidHistory(contractAddress));
+        return result;
+    }
+
+    private WinnerInfo getWinner(String contractAddress) throws Exception {
         Auction auction = Auction.load(contractAddress, this.web3j, this.transactionManager, new DefaultGasProvider());
         Auction.WinnerInfo winnerInfo = auction.getWinner().send();
         return this.auctionWinnerInfoToWinnerInfo(winnerInfo);
+    }
+
+    private List<Bid> getBidHistory(String contractAddress) throws Exception {
+        Auction auction = Auction.load(contractAddress, this.web3j, this.transactionManager, new DefaultGasProvider());
+        List<Auction.Bid> bidHistory = auction.getBidHistory().send();
+        return bidHistory.stream().map(this::auctionBidToBid).collect(Collectors.toList());
     }
 
     private Auction.Requirements requirementsRequestToAuctionRequirements(RequirementsRequest requirementsRequest) {
@@ -73,6 +90,10 @@ public class AuctionService {
     private WinnerInfo auctionWinnerInfoToWinnerInfo(Auction.WinnerInfo winnerInfo) {
         ProviderInfo providerInfo = this.providerService.getProviderInfoByAddress(winnerInfo.bidderAddress);
         return WinnerInfo.builder().address(winnerInfo.bidderAddress).name(providerInfo.getName()).cost(winnerInfo.cost.intValue()).build();
+    }
+
+    private Bid auctionBidToBid(Auction.Bid bid) {
+        return Bid.builder().value(bid.value.intValue()).bidder(bid.bidder).build();
     }
 
 }
