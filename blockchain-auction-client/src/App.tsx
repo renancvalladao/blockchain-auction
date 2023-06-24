@@ -31,6 +31,7 @@ const App = () => {
   const [auctionWinner, setAuctionWinner] = useState<WinnerInfo>()
   const [isLoading, setIsLoading] = useState(false)
   const [providers, setProviders] = useState<ProviderInfo[]>([])
+  const [bidHistory, setBidHistory] = useState<Bid[]>([])
   const [stompClient, setStompClient] = useState<any>(null)
 
   useEffect(() => {
@@ -70,9 +71,13 @@ const App = () => {
     const subscription = stompClient.subscribe(
       `/auction-finished/${auctionAddress}`,
       (payload: any) => {
-        const winnerInfo: WinnerInfo = JSON.parse(payload.body)
+        console.log(JSON.parse(payload.body))
+        const result = JSON.parse(payload.body)
+        const winnerInfo: WinnerInfo = result['winnerInfo']
+        const bidHistory: Bid[] = result['bidHistory']
         setAuctionState(AuctionState.FINISHED)
         setAuctionWinner(winnerInfo)
+        setBidHistory(bidHistory)
         subscription.unsubscribe()
       }
     )
@@ -107,6 +112,7 @@ const App = () => {
                   <AuctionResult
                     winner={auctionWinner}
                     onNewAuction={newAuctionHandler}
+                    bidHistory={bidHistory}
                   />
                 )}
               </TabPanel>

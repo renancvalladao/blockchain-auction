@@ -1,11 +1,28 @@
-import { Box, Button, Stack, Text } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Stack,
+  Table,
+  TableContainer,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr
+} from '@chakra-ui/react'
 
 type AuctionResultProps = {
   winner: WinnerInfo
   onNewAuction: () => void
+  bidHistory: Bid[]
 }
 
-const AuctionResult = ({ winner, onNewAuction }: AuctionResultProps) => {
+const AuctionResult = ({
+  winner,
+  onNewAuction,
+  bidHistory
+}: AuctionResultProps) => {
   return (
     <Stack spacing={4}>
       <Box>
@@ -19,6 +36,24 @@ const AuctionResult = ({ winner, onNewAuction }: AuctionResultProps) => {
           Cost: {winner.cost}
         </Text>
       </Box>
+      <TableContainer>
+        <Table variant={'striped'}>
+          <Thead>
+            <Tr>
+              <Th>Bidder</Th>
+              <Th>Value</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {bidHistory.map((bid) => (
+              <Tr key={bid.bidder}>
+                <Td>{bid.bidder}</Td>
+                <Td>{bid.value}</Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      </TableContainer>
       <Button colorScheme={'blue'} onClick={onNewAuction}>
         New auction
       </Button>

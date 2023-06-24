@@ -27,3 +27,8 @@ type WinnerInfo = {
   name: string
   cost: number
 }
+
+type Bid = {
+  bidder: string
+  value: int
+}
