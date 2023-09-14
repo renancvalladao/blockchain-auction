@@ -16,7 +16,8 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/benchmark").addInterceptors(this.providerHandshakeInterceptor);
+        registry.addEndpoint("/benchmark/providers").addInterceptors(this.providerHandshakeInterceptor);
+        registry.addEndpoint("/benchmark/monitoring");
     }
 
 }
