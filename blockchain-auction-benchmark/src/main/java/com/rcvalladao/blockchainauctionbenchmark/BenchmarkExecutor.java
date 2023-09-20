@@ -70,12 +70,15 @@ public class BenchmarkExecutor {
                 .maxDelay(OptionalRequirement.builder().value(1).required(false).build())
                 .bandwidth(OptionalRequirement.builder().value(1).required(false).build())
                 .build();
-        // N auctions
-        CompanyAbcBidService companyAbcBidService = new CompanyAbcBidService(this.web3j, this.transactionManager, new CompanyAbcCostService());
-        CompanyAbcSessionHandler companyAbcSessionHandler = new CompanyAbcSessionHandler(companyAbcBidService);
-        CompanyAbcWebSocketClient companyAbcWebSocketClient = new CompanyAbcWebSocketClient(companyAbcSessionHandler,
-                WEBSOCKET_URL + "/providers", this.privateKey);
-        companyAbcWebSocketClient.postConstruct();
+
+        for (int i = 0; i < this.numberOfProviders; i++) {
+            CompanyAbcBidService companyBidService = new CompanyAbcBidService(this.web3j, this.transactionManager, new CompanyAbcCostService());
+            CompanyAbcSessionHandler companySessionHandler = new CompanyAbcSessionHandler(companyBidService);
+            CompanyAbcWebSocketClient companyWebSocketClient = new CompanyAbcWebSocketClient(companySessionHandler,
+                    WEBSOCKET_URL + "/providers", this.privateKey);
+            companyWebSocketClient.postConstruct();
+        }
+
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(this.numberOfAuctions);
 
         FinishedAuctionSessionHandler finishedAuctionSessionHandler = new FinishedAuctionSessionHandler(this.runningAuctions);
@@ -115,17 +118,6 @@ public class BenchmarkExecutor {
             log.info("An error happened while running the benchmark");
             return;
         }
-
-        // N providers
-//        for (int i = 0; i < this.numberOfProviders - 1; i++) {
-//            CompanyAbcBidService companyBidService = new CompanyAbcBidService(this.web3j, this.transactionManager, new CompanyAbcCostService());
-//            CompanyAbcSessionHandler companySessionHandler = new CompanyAbcSessionHandler(companyBidService);
-//            CompanyAbcWebSocketClient companyWebSocketClient = new CompanyAbcWebSocketClient(companySessionHandler,
-//                    WEBSOCKET_URL, this.privateKey);
-//            companyWebSocketClient.postConstruct();
-//        }
-
-//        auctionService.createAuction(requirementsRequest);
 
         this.writeResults();
         log.info("Benchmark finished");
