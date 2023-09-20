@@ -56,6 +56,8 @@ public class BenchmarkExecutor {
     private int numberOfProviders;
     @Value("${account.privateKey}")
     private String privateKey;
+    @Value("${outputFileName}")
+    private String outputFileName;
     private boolean error;
 
 
@@ -148,7 +150,12 @@ public class BenchmarkExecutor {
                 .numberOfAuctions(this.numberOfAuctions)
                 .numberOfProviders(this.numberOfProviders)
                 .build();
-        try (Writer writer = new FileWriter("output.json")) {
+
+        if (this.outputFileName == null || this.outputFileName.isBlank()) {
+            this.outputFileName = "output";
+        }
+        String fileName = this.outputFileName + ".json";
+        try (Writer writer = new FileWriter(fileName)) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             gson.toJson(auctionResult, writer);
         }
