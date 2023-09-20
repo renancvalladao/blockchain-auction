@@ -1,5 +1,9 @@
 package com.rcvalladao.blockchainauctionbenchmark;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.rcvalladao.blockchainauctionbenchmark.dto.AuctionResult;
+import com.rcvalladao.blockchainauctionbenchmark.dto.BenchmarkResult;
 import com.rcvalladao.blockchainauctionbenchmark.websocket.FinishedAuctionSessionHandler;
 import com.rcvalladao.blockchainauctionbidservice.service.CompanyAbcBidService;
 import com.rcvalladao.blockchainauctionbidservice.service.CompanyAbcCostService;
@@ -22,7 +26,12 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 import org.web3j.protocol.Web3j;
 import org.web3j.tx.TransactionManager;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -47,6 +56,7 @@ public class BenchmarkExecutor {
     private int numberOfProviders;
     @Value("${account.privateKey}")
     private String privateKey;
+    private boolean error;
 
 
     public void run() throws Exception {
@@ -88,6 +98,7 @@ public class BenchmarkExecutor {
                     finishedAuctionSessionHandler.subscribe(auction.getAddress());
                 } catch (Exception e) {
                     log.error("Failed to create auction", e);
+                    this.error = true;
                 }
             }, i, TimeUnit.SECONDS);
         }
@@ -100,23 +111,64 @@ public class BenchmarkExecutor {
             }
         } while (!this.auctionsFinished());
 
-        // N providers
-        for (int i = 0; i < this.numberOfProviders - 1; i++) {
-            CompanyAbcBidService companyBidService = new CompanyAbcBidService(this.web3j, this.transactionManager, new CompanyAbcCostService());
-            CompanyAbcSessionHandler companySessionHandler = new CompanyAbcSessionHandler(companyBidService);
-            CompanyAbcWebSocketClient companyWebSocketClient = new CompanyAbcWebSocketClient(companySessionHandler,
-                    WEBSOCKET_URL, this.privateKey);
-            companyWebSocketClient.postConstruct();
+        if (this.error) {
+            log.info("An error happened while running the benchmark");
+            return;
         }
 
-        auctionService.createAuction(requirementsRequest);
+        // N providers
+//        for (int i = 0; i < this.numberOfProviders - 1; i++) {
+//            CompanyAbcBidService companyBidService = new CompanyAbcBidService(this.web3j, this.transactionManager, new CompanyAbcCostService());
+//            CompanyAbcSessionHandler companySessionHandler = new CompanyAbcSessionHandler(companyBidService);
+//            CompanyAbcWebSocketClient companyWebSocketClient = new CompanyAbcWebSocketClient(companySessionHandler,
+//                    WEBSOCKET_URL, this.privateKey);
+//            companyWebSocketClient.postConstruct();
+//        }
 
+//        auctionService.createAuction(requirementsRequest);
+
+        this.writeResults();
         log.info("Benchmark finished");
     }
 
     private boolean auctionsFinished() {
         if (this.runningAuctions.isEmpty()) return false;
         return this.runningAuctions.values().stream().filter(auctionStatus -> !auctionStatus.isFinished()).toList().isEmpty();
+    }
+
+    private void writeResults() throws IOException {
+        List<AuctionResult> resultList = new ArrayList<>();
+        for (AuctionStatus auctionStatus : this.runningAuctions.values()) {
+            long deployDuration = auctionStatus.getDeployedAt().toEpochMilli() - auctionStatus.getStartedAt().toEpochMilli();
+            long auctionDuration = auctionStatus.getFinishedAt().toEpochMilli() - auctionStatus.getDeployedAt().toEpochMilli();
+            AuctionResult benchmarkResult = AuctionResult.builder()
+                    .deployDuration(deployDuration)
+                    .auctionDuration(auctionDuration)
+                    .build();
+            resultList.add(benchmarkResult);
+        }
+        List<Long> auctionDurations = resultList.stream().map(AuctionResult::getAuctionDuration).toList();
+        List<Long> deployDurations = resultList.stream().map(AuctionResult::getDeployDuration).toList();
+        BenchmarkResult auctionResult = BenchmarkResult.builder()
+                .auctionResults(resultList)
+                .averageAuctionDuration(this.calculateAverage(auctionDurations))
+                .averageDeployDuration(this.calculateAverage(deployDurations))
+                .numberOfAuctions(this.numberOfAuctions)
+                .numberOfProviders(this.numberOfProviders)
+                .build();
+        try (Writer writer = new FileWriter("output.json")) {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            gson.toJson(auctionResult, writer);
+        }
+    }
+
+    private long calculateAverage(List<Long> list) {
+        long sum = 0;
+        for (Long value : list) {
+            sum += value;
+        }
+
+        return Math.round((double) sum / list.size());
     }
 
 }
