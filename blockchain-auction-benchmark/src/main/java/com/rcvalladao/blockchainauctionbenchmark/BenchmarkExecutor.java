@@ -105,7 +105,7 @@ public class BenchmarkExecutor {
                     log.error("Failed to create auction", e);
                     this.error = true;
                 }
-            }, i, TimeUnit.SECONDS);
+            }, i * 2L, TimeUnit.SECONDS);
         }
 
         do {

@@ -25,7 +25,7 @@ public class BlockchainConfiguration {
     TransactionManager transactionManager(@Value("${account.privateKey}") String privateKey,
                                           @Value("${chain.id}") int chainId, Web3j web3j) {
         Credentials credentials = Credentials.create(privateKey);
-        return new RawTransactionManager(web3j, credentials, chainId);
+        return new RawTransactionManager(web3j, credentials, chainId, 80, 1000);
     }
 
 }
