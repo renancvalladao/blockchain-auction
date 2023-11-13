@@ -23,7 +23,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
+import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
+import org.web3j.tx.RawTransactionManager;
 import org.web3j.tx.TransactionManager;
 
 import java.io.FileWriter;
@@ -58,6 +60,8 @@ public class BenchmarkExecutor {
     private String privateKey;
     @Value("${outputFileName}")
     private String outputFileName;
+    @Value("${chain.id}")
+    private int chainId;
     private boolean error;
 
 
@@ -74,7 +78,9 @@ public class BenchmarkExecutor {
                 .build();
 
         for (int i = 0; i < this.numberOfProviders; i++) {
-            CompanyAbcBidService companyBidService = new CompanyAbcBidService(this.web3j, this.transactionManager, new CompanyAbcCostService());
+            Credentials credentials = Credentials.create(this.privateKey);
+            TransactionManager tx = new RawTransactionManager(this.web3j, credentials, this.chainId, 80, 1000);
+            CompanyAbcBidService companyBidService = new CompanyAbcBidService(this.web3j, tx, new CompanyAbcCostService());
             CompanyAbcSessionHandler companySessionHandler = new CompanyAbcSessionHandler(companyBidService);
             CompanyAbcWebSocketClient companyWebSocketClient = new CompanyAbcWebSocketClient(companySessionHandler,
                     WEBSOCKET_URL + "/providers", this.privateKey);
